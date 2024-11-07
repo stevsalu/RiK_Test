@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using RiK_Test.Server.Repositories;
 using RiK_Test.Server.Services;
 using RIK_Test.Shared.Models;
+using System.Data;
 
 namespace RiK_Test.Server.Controllers;
 
@@ -59,7 +60,24 @@ public class EventController : ControllerBase {
         catch (KeyNotFoundException ex) {
             return NotFound(ex.Message);
         }
-        catch (Exception ex) {
+        catch (DuplicateNameException ex) {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception) {
+            return StatusCode(500, "An error occurred while registering the participant to the event.");
+        }
+    }
+
+    [HttpPost("{eventId}/remove/{participantId}")]
+    public async Task<IActionResult> RemoveParticipantFromEvent(int eventId, int participantId) {
+        try {
+            var updatedEvent = await _eventService.RemoveParticipantFromEvent(eventId, participantId);
+            return Ok(updatedEvent);
+        }
+        catch (KeyNotFoundException ex) {
+            return NotFound(ex.Message);
+        }
+        catch (Exception) {
             return StatusCode(500, "An error occurred while registering the participant to the event.");
         }
     }
@@ -74,7 +92,7 @@ public class EventController : ControllerBase {
         catch (ArgumentException ex) {
             return BadRequest(ex.Message);
         }
-        catch (Exception ex) {
+        catch (Exception) {
             return StatusCode(500, "An error occurred while updating the event.");
         }
     }
@@ -84,7 +102,7 @@ public class EventController : ControllerBase {
         try {
             return Ok(await _eventService.DeleteEventAsync(id));
         }
-        catch (Exception ex) {
+        catch (Exception) {
             return StatusCode(500, "An error occurred while deleting the event.");
         }
     }

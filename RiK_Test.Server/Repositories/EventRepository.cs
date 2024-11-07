@@ -13,7 +13,7 @@ public class EventRepository : IEventRepository {
     }
 
     public async Task<List<Event>> GetEventsAsync() {
-        return await _ctx.EventsTable.ToListAsync();
+        return await _ctx.EventsTable.Include(e => e.Participants).ToListAsync();
     }
 
     public async Task AddEventAsync(Event evt) {
@@ -23,7 +23,7 @@ public class EventRepository : IEventRepository {
     }
 
     public async Task<Event?> GetByIdAsync(int id) {
-        return await _ctx.EventsTable.FindAsync(id);
+        return await _ctx.EventsTable.Include(e => e.Participants).FirstOrDefaultAsync(e => e.Id == id);
     }
 
     public async Task UpdateAsync(Event evt) {

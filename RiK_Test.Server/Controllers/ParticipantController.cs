@@ -25,4 +25,52 @@ public class ParticipantController : ControllerBase {
             return BadRequest(ex.ToString());
         }
     }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<IEnumerable<Event>>> GetParticipant(int id) {
+        try {
+            var participant = await _participantService.GetParticipantByIdAsync(id);
+            if (participant == null) return NotFound();
+            return Ok(participant);
+        }
+        catch (Exception ex) {
+            return BadRequest(ex.ToString());
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddParticipant(Participant participant) {
+        try {
+            var createdParticipant = await _participantService.AddParticipantAsync(participant);
+            return CreatedAtAction(nameof(GetParticipant), new { id = createdParticipant.Id }, createdParticipant);
+        }
+        catch (Exception ex) {
+            return BadRequest(ex.ToString());
+        }
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateParticipant(int id, Participant participant) {
+        try {
+            var updatedParticipant = await _participantService.UpdateParticipantAsync(id, participant);
+            if (updatedParticipant == null) return NotFound();
+            return Ok(updatedParticipant);
+        }
+        catch (ArgumentException ex) {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex) {
+            return StatusCode(500, "An error occurred while updating the event.");
+        }
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteParticipant(int id) {
+        try {
+            return Ok(await _participantService.DeleteParticipantAsync(id));
+        }
+        catch (Exception ex) {
+            return StatusCode(500, "An error occurred while deleting the event.");
+        }
+    }
 }

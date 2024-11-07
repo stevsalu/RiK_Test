@@ -1,5 +1,6 @@
 ﻿using RiK_Test.Server.Repositories;
 using RIK_Test.Shared.Models;
+using System.Data;
 
 namespace RiK_Test.Server.Services;
 public class EventService {
@@ -48,10 +49,25 @@ public class EventService {
         var participant = await _participantRepository.GetByIdAsync(participantId);
         if (participant == null) throw new KeyNotFoundException("Participant not found");
 
-        if (!evt.Participants.Contains(participant)) {
-            evt.Participants.Add(participant);
-            await _eventRepository.UpdateAsync(evt);
-        }
+        if (evt.Participants.Any(p => p.Id == participantId)) throw new DuplicateNameException($"Participant {participant.Name} is already added to event {evt.Name}.");
+
+        evt.Participants.Add(participant);
+        await _eventRepository.UpdateAsync(evt);
+        
+        return evt;
+    }
+
+    public async Task<Event?> RemoveParticipantFromEvent(int eventId, int participantId) {
+        var evt = await _eventRepository.GetByIdAsync(eventId);
+        if (evt == null) throw new KeyNotFoundException("Event not found");
+
+        var participant = await _participantRepository.GetByIdAsync(participantId);
+        if (participant == null) throw new KeyNotFoundException("Participant not found");
+
+        if (!evt.Participants.Any(p => p.Id == participantId)) throw new KeyNotFoundException($"Participant {participant.Name} not found in event {evt.Name}.");
+
+        evt.Participants.Remove(participant);
+        await _eventRepository.UpdateAsync(evt);
 
         return evt;
     }

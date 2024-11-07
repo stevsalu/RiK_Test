@@ -32,7 +32,7 @@ public class ParticipantService {
         return await _participantRepository.GetByIdAsync(id);
     }
 
-    public async Task<List<Participant>> DeleteEventAsync(int id) {
+    public async Task<List<Participant>> DeleteParticipantAsync(int id) {
         await _participantRepository.DeleteAsync(id);
 
         return await GetAllParticipantsAsync();
