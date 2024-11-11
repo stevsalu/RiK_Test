@@ -49,3 +49,5 @@ Models: Defines the main data models and DTOs used across the application.
 Example: Participant, Event, EventParticipant (join table)
 
 Data: Contains the AppDbContext for database context configuration and migration management.
+
+Notes: There are some issues with the css and styling it is not as it should be and error handling could be more elegant
