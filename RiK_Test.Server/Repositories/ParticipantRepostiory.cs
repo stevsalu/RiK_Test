@@ -18,6 +18,11 @@ public class ParticipantRepository : IParticipantRepository {
         return await _ctx.ParticipantsTable.FindAsync(id);
     }
 
+    public async Task<Participant?> GetByCodeAsync(string code) {
+        var participant = await _ctx.ParticipantsTable.Where(p => p.Code == code).FirstOrDefaultAsync();
+        return participant;
+    }
+
     public async Task AddAsync(Participant participant) {
         _ctx.ParticipantsTable.Add(participant);
         await _ctx.SaveChangesAsync();

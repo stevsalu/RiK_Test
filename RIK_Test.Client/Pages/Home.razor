@@ -1,7 +1,86 @@
 ﻿@page "/"
+@using RIK_Test.Client.Components;
+@using RIK_Test.Shared.Models;
+@inject HttpClient Http
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Avaleht</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="container-fluid py-5">
+	<div class="container maincolorbg">
+		<div class="row align-items-center">
+			<div class="col-md-6 text-light">
+				<p>
+					Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam libero sapien, tempus ut feugiat non, semper eu diam. Fusce in nisl massa. Morbi dictum massa at aliquam congue. Vestibulum tempor turpis eget imperdiet volutpat. Proin in dapibus magna, in mollis tellus. Sed consectetur finibus justo, ut placerat urna imperdiet vitae. Nam eleifend varius congue.
+				</p>
+			</div>
+			<div class="col-md-6 d-flex align-items-stretch">
+				<img src="pilt.jpg" class="img-fluid" alt="Introduction Image" />
+			</div>
+		</div>
+	</div>
+</div>
 
-Welcome to your new app.
+<div class="container-fluid py-4">
+	<div class="container">
+		<div class="row events py-4">
+			@if (!string.IsNullOrEmpty(ErrorMessage)) {
+				<p class="text-danger">@ErrorMessage</p>
+			}
+			<div class="col-md-6 mb-4">
+				<div class="card-header maincolorbg text-light">
+					<h5 class="mb-0">Tulevased üritused</h5>
+				</div>
+				<div class="card-body bg-light">
+					<EventList Events="UpcomingEvents" OnDelete="DeleteEventAsync" />
+				</div>
+			</div>
+			<div class="col-md-6 mb-4">
+				<div class="card-header maincolorbg text-light">
+					<h5 class="mb-0">Toimunud üritused</h5>
+				</div>
+				<div class="card-body bg-light">
+					<EventList Events="PastEvents" />
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+@code {
+	private List<Event> UpcomingEvents { get; set; } = new List<Event>();
+	private List<Event> PastEvents { get; set; } = new List<Event>();
+
+	private string? ErrorMessage { get; set; }
+	protected override async Task OnInitializedAsync() {
+
+		var response = await Http.GetAsync("api/event");
+
+		if (!response.IsSuccessStatusCode) {
+			ErrorMessage = "An unexpected error occurred.";
+			return;
+		}
+
+		var allEvents = await response.Content.ReadFromJsonAsync<Event[]>();
+
+		HandleEventDates(allEvents);
+	}
+
+	private async Task DeleteEventAsync(int eventId) {
+		Console.WriteLine($"Deleteing event {eventId}");
+		var response = await Http.DeleteAsync($"api/event/{eventId}");
+
+		if (!response.IsSuccessStatusCode) {
+			ErrorMessage = "Tekkis viga ürituse kustutamisel";
+			return;
+		}
+		var allEvents = await response.Content.ReadFromJsonAsync<Event[]>();
+
+		HandleEventDates(allEvents);
+	}
+
+	private void HandleEventDates(Event[] events) {
+		var currentDate = DateTime.Now;
+		UpcomingEvents = events.Where(e => e.Date > currentDate).ToList();
+		PastEvents = events.Where(e => e.Date < currentDate).ToList();
+	}
+}

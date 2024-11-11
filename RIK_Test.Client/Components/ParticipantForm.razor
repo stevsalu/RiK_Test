@@ -1,0 +1,79 @@
+﻿@using RIK_Test.Shared.Models
+@using RIK_Test.Shared.DTOs
+@using System.ComponentModel.DataAnnotations
+
+<EditForm Model="@ParticipantModel" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <InputRadioGroup @bind-Value="ParticipantModel.Type" class="form-check">
+            <div class="form-check">
+                <InputRadio id="TypePrivate" class="form-check-input" Value="Participant.ParticipantType.Private" />
+                <label for="TypePrivate" class="form-check-label">Eraisik</label>
+            </div>
+            <div class="form-check">
+                <InputRadio id="TypeBusiness" class="form-check-input" Value="Participant.ParticipantType.Business" />
+                <label for="TypeBusiness" class="form-check-label">Ettevõte</label>
+            </div>
+        </InputRadioGroup>
+        <ValidationMessage For="@(() => ParticipantModel.Type)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="Name">Nimi</label>
+        <InputText id="Name" @bind-Value="ParticipantModel.Name" class="form-control" />
+        <ValidationMessage For="@(() => ParticipantModel.Name)" />
+    </div>
+
+    @if (ParticipantModel.Type == Participant.ParticipantType.Private) {
+        <div class="mb-3">
+            <label for="LastName">Perenimi</label>
+            <InputText id="LastName" @bind-Value="ParticipantModel.LastName" class="form-control" />
+            <ValidationMessage For="@(() => ParticipantModel.LastName)" />
+        </div>
+        <div class="mb-3">
+            <label for="Code">Isikukood</label>
+            <InputText id="Code" @bind-Value="ParticipantModel.Code" class="form-control" />
+            <ValidationMessage For="@(() => ParticipantModel.Code)" />
+        </div>
+    }
+    else if (ParticipantModel.Type == Participant.ParticipantType.Business) {
+        <div class="mb-3">
+            <label for="Code">Registrikood</label>
+            <InputText id="Code" @bind-Value="ParticipantModel.Code" class="form-control" />
+            <ValidationMessage For="@(() => ParticipantModel.Code)" />
+        </div>
+        <div class="mb-3">
+            <label for="ParticipantCount">Osavõtjate arv</label>
+            <InputNumber id="ParticipantCount" @bind-Value="ParticipantModel.ParticipantCount" class="form-control" />
+            <ValidationMessage For="@(() => ParticipantModel.ParticipantCount)" />
+        </div>
+    }
+
+    <div class="mb-3">
+        <label for="PaymentMethod">Maksmisviis</label>
+        <InputText id="PaymentMethod" @bind-Value="ParticipantModel.PaymentMethod" class="form-control" />
+        <ValidationMessage For="@(() => ParticipantModel.PaymentMethod)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="Description">Lisainfo</label>
+        <InputTextArea id="Description" @bind-Value="ParticipantModel.Description" class="form-control" />
+        <ValidationMessage For="@(() => ParticipantModel.Description)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Salvesta</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public CreateParticipantDTO ParticipantModel { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<CreateParticipantDTO> OnSubmit { get; set; }
+
+    private async Task OnValidSubmit() {
+        await OnSubmit.InvokeAsync(ParticipantModel);
+    }
+}

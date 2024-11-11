@@ -1,0 +1,28 @@
+﻿@using RIK_Test.Shared.Models
+
+@if (Events == null || !Events.Any()) {
+    <p>Üritusi pole.</p>
+}
+else {
+    <ul class="list-unstyled">
+        @foreach (var evt in Events) {
+            <li class="d-flex justify-content-between align-items-center py-2">
+                <span>@evt.Name</span>
+                <span>@evt.Date?.ToString("d")</span>
+                <a class="text-dark" href="event/@evt.Id">Osavõtjad</a>
+                @if (evt.Date > DateTime.Now) {
+                    <a @onclick="() => OnDelete.InvokeAsync(evt.Id)"><img src="remove.svg" alt="remove button" /></a>
+                }
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    [Parameter]
+    public List<Event> Events { get; set; } = new List<Event>();
+
+    [Parameter]
+    public EventCallback<int> OnDelete { get; set; }
+}
+

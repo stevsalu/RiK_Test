@@ -1,0 +1,48 @@
+﻿@page "/participant/{ParticipantId:int}"
+@inject HttpClient Http
+@using RIK_Test.Shared.DTOs;
+@using RIK_Test.Shared.Models;
+@using System.Net.Http.Json
+@using RIK_Test.Client.Components;
+
+<CardWithHeader HeaderTitle="Osavõtja muutmine">
+    <ParticipantForm ParticipantModel="@participant" OnSubmit="HandleSaveParticipant" />
+    @if (!string.IsNullOrEmpty(errorMessage)) {
+        <p class="text-danger">@errorMessage</p>
+    }
+    @if (isSuccess) {
+        <p class="text-success">Participant added successfully!</p>
+    }
+</CardWithHeader>
+@code {
+    [Parameter]
+    public int ParticipantId { get; set; }
+
+    public CreateParticipantDTO participant { get; set; } = new CreateParticipantDTO();
+    private bool isSuccess = false;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync() {
+        participant = await Http.GetFromJsonAsync<CreateParticipantDTO>($"api/participant/{ParticipantId}");
+    }
+
+    private async Task HandleSaveParticipant() {
+        try {
+            var response = await Http.PutAsJsonAsync($"api/participant/{ParticipantId}/", participant);
+
+            if (!response.IsSuccessStatusCode) {
+                isSuccess = false;
+                errorMessage = "Tekkis viga osaleja andmete muutmisel.";
+                return;
+               
+            }
+            isSuccess = true;
+            errorMessage = null;
+            participant = await response.Content.ReadFromJsonAsync<CreateParticipantDTO>();
+        }
+        catch (Exception ex) {
+            isSuccess = false;
+            errorMessage = $"Exception: {ex.Message}";
+        }
+    }
+}

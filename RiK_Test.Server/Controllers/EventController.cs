@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RiK_Test.Server.Repositories;
 using RiK_Test.Server.Services;
+using RIK_Test.Shared.DTOs;
 using RIK_Test.Shared.Models;
 using System.Data;
 
@@ -18,9 +19,9 @@ public class EventController : ControllerBase {
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Event>>> GetAllEvents() {
+    public async Task<ActionResult<IEnumerable<EventDTO>>> GetEvents([FromQuery] bool? onlyPastEvents = null) {
         try {
-            var events = await _eventService.GetAllEventsAsync();
+            var events = await _eventService.GetEventsAsync(onlyPastEvents);
             return Ok(events);
         }
         catch (Exception ex) {
@@ -55,6 +56,23 @@ public class EventController : ControllerBase {
     public async Task<IActionResult> RegisterParticipantToEvent(int eventId, int participantId) {
         try {
             var updatedEvent = await _eventService.RegisterParticipantToEvent(eventId, participantId);
+            return Ok(updatedEvent);
+        }
+        catch (KeyNotFoundException ex) {
+            return NotFound(ex.Message);
+        }
+        catch (DuplicateNameException ex) {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception) {
+            return StatusCode(500, "An error occurred while registering the participant to the event.");
+        }
+    }
+
+    [HttpPost("{eventId}/register/")]
+    public async Task<IActionResult> RegisterAndCreateParticipant(int eventId, CreateParticipantDTO participant) {
+        try {
+            var updatedEvent = await _eventService.RegisterOrAddParticipantToEvent(eventId, participant);
             return Ok(updatedEvent);
         }
         catch (KeyNotFoundException ex) {

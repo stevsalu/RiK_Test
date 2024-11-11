@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RiK_Test.Server.Services;
+using RIK_Test.Shared.DTOs;
 using RIK_Test.Shared.Models;
 
 namespace RiK_Test.Server.Controllers;
@@ -16,7 +17,7 @@ public class ParticipantController : ControllerBase {
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Event>>> GetAllParticipants() {
+    public async Task<ActionResult<IEnumerable<Participant>>> GetAllParticipants() {
         try {
             var participants = await _participantService.GetAllParticipantsAsync();
             return Ok(participants);
@@ -27,7 +28,7 @@ public class ParticipantController : ControllerBase {
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<IEnumerable<Event>>> GetParticipant(int id) {
+    public async Task<ActionResult<IEnumerable<Participant>>> GetParticipant(int id) {
         try {
             var participant = await _participantService.GetParticipantByIdAsync(id);
             if (participant == null) return NotFound();
@@ -50,7 +51,7 @@ public class ParticipantController : ControllerBase {
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateParticipant(int id, Participant participant) {
+    public async Task<IActionResult> UpdateParticipant(int id, CreateParticipantDTO participant) {
         try {
             var updatedParticipant = await _participantService.UpdateParticipantAsync(id, participant);
             if (updatedParticipant == null) return NotFound();
@@ -59,7 +60,7 @@ public class ParticipantController : ControllerBase {
         catch (ArgumentException ex) {
             return BadRequest(ex.Message);
         }
-        catch (Exception ex) {
+        catch (Exception) {
             return StatusCode(500, "An error occurred while updating the event.");
         }
     }
@@ -69,7 +70,7 @@ public class ParticipantController : ControllerBase {
         try {
             return Ok(await _participantService.DeleteParticipantAsync(id));
         }
-        catch (Exception ex) {
+        catch (Exception) {
             return StatusCode(500, "An error occurred while deleting the event.");
         }
     }

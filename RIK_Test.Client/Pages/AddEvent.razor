@@ -1,0 +1,67 @@
+﻿@page "/add-event"
+@using RIK_Test.Client.Components;
+@using RIK_Test.Shared.DTOs;
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>Lisa üritus</PageTitle>
+<CardWithHeader HeaderTitle="Ürituse lisamine">
+    <EditForm Model="evt" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label for="Name">Event Name</label>
+            <InputText id="Name" @bind-Value="evt.Name" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label for="Description">Description</label>
+            <InputText id="Description" @bind-Value="evt.Description" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label for="Place">Place</label>
+            <InputText id="Place" @bind-Value="evt.Place" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label for="Date">Date</label>
+            <InputDate id="Date" @bind-Value="evt.Date" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Add Event</button>
+    </EditForm>
+</CardWithHeader>
+@if (isSuccess)
+{
+    <p class="text-success">Event added successfully!</p>
+}
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p class="text-danger">@errorMessage</p>
+}
+
+@code {
+    private CreateEventDTO evt = new CreateEventDTO();
+    private bool isSuccess = false;
+    private string? errorMessage;
+
+    private async Task HandleValidSubmit() {
+        try {
+            var response = await Http.PostAsJsonAsync("api/event", evt);
+
+            if (!response.IsSuccessStatusCode) {
+                isSuccess = false;
+                errorMessage = "Error: Unable to add event.";
+                return;
+            }
+            Navigation.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            isSuccess = false;
+            errorMessage = $"Exception: {ex.Message}";
+        }
+    }
+}
