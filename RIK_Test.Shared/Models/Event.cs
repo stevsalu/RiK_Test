@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace RIK_Test.Shared.Models;
-    public class Event : IValidatableObject {
+    public class Event {
 
     public int Id { get; set; }
 
@@ -20,7 +20,4 @@ namespace RIK_Test.Shared.Models;
 
     public List<Participant> Participants { get; set; } = new();
 
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) {
-        if (string.IsNullOrWhiteSpace(Name)) yield return new ValidationResult("The name field is required");
-    }
 }
