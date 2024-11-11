@@ -22,7 +22,7 @@
             <label for="participants">Osavõtjad:</label>
             <ul id="participants">
                 @foreach (var participant in eventDetails.Participants) {
-                    <li>@participant.NameToString() - @participant.Code <button type="button" class="btn-secondary" @onclick="(() => HandleNavigateToDetails(participant.Id))">VAATA</button>  <button type="button" class="btn-secondary" @onclick="(() => HandleRemoveParticipant(participant.Id))">KUSTUTA</button></li>
+                    <li>@participant.NameToString() - @participant.Code <button type="button" class="btn btn-secondary-outline" @onclick="(() => HandleNavigateToDetails(participant.Id))">VAATA</button>  <button type="button" class="btn btn-secondary-outline" @onclick="(() => HandleRemoveParticipant(participant.Id))">KUSTUTA</button></li>
                 }
             </ul>
         }
@@ -31,7 +31,7 @@
         }
 
         <h4>Osavõtja lisamine</h4>
-        <ParticipantForm ParticipantModel="@newParticipant" OnSubmit="HandleAddParticipant"/>
+        <ParticipantForm ParticipantModel="@newParticipant" OnSubmit="HandleAddParticipant" OnBack="NavigateBack"/>
 
 
         @if (!string.IsNullOrEmpty(errorMessage)) {
@@ -104,6 +104,10 @@
     }
 
     private void HandleNavigateToDetails(int id) {
-        Navigation.NavigateTo($"/participant/{id}");
+        Navigation.NavigateTo($"/participant/{id}?returnUrl=/event/{EventId}");
+    }
+
+    private void NavigateBack() {
+        Navigation.NavigateTo("/");
     }
 }

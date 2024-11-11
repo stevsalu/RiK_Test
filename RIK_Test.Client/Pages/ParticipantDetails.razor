@@ -1,12 +1,16 @@
 ﻿@page "/participant/{ParticipantId:int}"
 @inject HttpClient Http
+@inject NavigationManager Navigation
 @using RIK_Test.Shared.DTOs;
 @using RIK_Test.Shared.Models;
 @using System.Net.Http.Json
 @using RIK_Test.Client.Components;
+@using Microsoft.AspNetCore.WebUtilities;
+
 
 <CardWithHeader HeaderTitle="Osavõtja muutmine">
-    <ParticipantForm ParticipantModel="@participant" OnSubmit="HandleSaveParticipant" />
+    <ParticipantForm ParticipantModel="@participant" OnSubmit="HandleSaveParticipant" OnBack="NavigateBack" />
+
     @if (!string.IsNullOrEmpty(errorMessage)) {
         <p class="text-danger">@errorMessage</p>
     }
@@ -21,9 +25,21 @@
     public CreateParticipantDTO participant { get; set; } = new CreateParticipantDTO();
     private bool isSuccess = false;
     private string? errorMessage;
+    private string? returnUrl;
 
     protected override async Task OnInitializedAsync() {
-        participant = await Http.GetFromJsonAsync<CreateParticipantDTO>($"api/participant/{ParticipantId}");
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("returnUrl", out var url)) {
+            returnUrl = url;
+        }
+        var response = await Http.GetAsync($"api/participant/{ParticipantId}");
+
+        if (!response.IsSuccessStatusCode) {
+            errorMessage = "Tekkis viga osaleja andmete saamisel";
+            return;
+        }
+
+        participant = await response.Content.ReadFromJsonAsync<CreateParticipantDTO>();
     }
 
     private async Task HandleSaveParticipant() {
@@ -34,7 +50,7 @@
                 isSuccess = false;
                 errorMessage = "Tekkis viga osaleja andmete muutmisel.";
                 return;
-               
+
             }
             isSuccess = true;
             errorMessage = null;
@@ -44,5 +60,9 @@
             isSuccess = false;
             errorMessage = $"Exception: {ex.Message}";
         }
+    }
+
+    private void NavigateBack() {
+        Navigation.NavigateTo(returnUrl ?? "/");
     }
 }

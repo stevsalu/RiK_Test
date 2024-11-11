@@ -30,7 +30,8 @@
             <InputDate id="Date" @bind-Value="evt.Date" class="form-control" />
         </div>
 
-        <button type="submit" class="btn btn-primary">Add Event</button>
+        <button type="button" class="btn btn-secondary" @onclick="(() => NavigateBack())">Tagasi</button>
+        <button type="submit" class="btn btn-primary">Salvesta</button>
     </EditForm>
 </CardWithHeader>
 @if (isSuccess)
@@ -53,7 +54,7 @@
 
             if (!response.IsSuccessStatusCode) {
                 isSuccess = false;
-                errorMessage = "Error: Unable to add event.";
+                errorMessage = "Tekkis viga ürituse lisamisel.";
                 return;
             }
             Navigation.NavigateTo("/");
@@ -63,5 +64,9 @@
             isSuccess = false;
             errorMessage = $"Exception: {ex.Message}";
         }
+    }
+
+    private void NavigateBack() {
+        Navigation.NavigateTo("/");
     }
 }
